@@ -9,20 +9,20 @@ const { Node } = require('../extensions/list-tree.js');
 class BinarySearchTree {
 
   constructor () {
-    this.root = null;
+    this.treeRoot = null;
   }
 
   root() {
-    return this.root;
+    return this.treeRoot;
   }
 
   add(data) {
-    if (this.root === null) {
-      this.root = new Node(data);
+    if (this.treeRoot === null) {
+      this.treeRoot = new Node(data);
       return;
     }
 
-    let currentNode = this.root;
+    let currentNode = this.treeRoot;
 
     while(currentNode) {
       if (data < currentNode.data) {
@@ -32,14 +32,14 @@ class BinarySearchTree {
         } else {
           currentNode = currentNode.left;
         }
-      } else {
+      } else if (data > currentNode.data) {
         if (!currentNode.right) {
           currentNode.right = new Node(data);
           break;
         } else {
           currentNode = currentNode.right;
         }
-      }
+      } else break;
     }
   }
 
@@ -48,7 +48,7 @@ class BinarySearchTree {
   }
 
   find(data) {
-    let currentNode = this.root;
+    let currentNode = this.treeRoot;
 
     while (currentNode) {
       if (data === currentNode.data) return currentNode;
@@ -64,19 +64,48 @@ class BinarySearchTree {
   }
 
   remove(data) {
-    let nodeToDelete = this.find(data);
-    if (nodeToDelete === null) return;
-
-    if (nodeToDelete.left === null && nodeToDelete.right === null) {
-      nodeToDelete === null;
-      return;
+    const searchForSuccessor = node => {
+      while (node.left) {
+        node = node.left;
+      }
+      return node.data;
     }
 
-    //TODO
+    const deleteNode = (node, value) => {
+      if (node === null) {
+        return node;
+      }
+
+      if (value < node.data) {
+        node.left = deleteNode(node.left, value);
+      } else if (value > node.data) {
+        node.right = deleteNode(node.right, value);
+      } else {
+        
+        if (!node.left && !node.right) {
+          return null;
+        }
+
+        if (!node.left) {
+          return node.right;
+        }
+
+        if (!node.right) {
+          return node.left;
+        }
+
+        node.data = searchForSuccessor(node.right);
+        node.right = deleteNode(node.right, node.data);
+      }
+
+      return node;
+    }
+
+    this.treeRoot = deleteNode(this.treeRoot, data);
   }
 
   min() {
-    let currentNode = this.root;
+    let currentNode = this.treeRoot;
 
     while(currentNode) {
       if (!currentNode.left) {
@@ -88,7 +117,7 @@ class BinarySearchTree {
   }
 
   max() {
-    let currentNode = this.root;
+    let currentNode = this.treeRoot;
 
     while(currentNode) {
       if (!currentNode.right) {
